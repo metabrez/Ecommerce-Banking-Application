@@ -3,14 +3,28 @@ package com.userFront.domain;
 import java.math.BigDecimal;
 import java.util.List;
 
-public class SavingsAccount {
-	
-	private Long id;
-	private int accountnumber;
-	private BigDecimal accountBalance;
-	
-	private List<SavingsTransaction> savingsTransactionList;
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+@Entity
+public class SavingsAccount {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
+    private int accountNumber;
+    private BigDecimal accountBalance;
+
+    @OneToMany(mappedBy = "savingsAccount", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<SavingsTransaction> savingsTransactionList;
 	public Long getId() {
 		return id;
 	}
@@ -20,11 +34,11 @@ public class SavingsAccount {
 	}
 
 	public int getAccountnumber() {
-		return accountnumber;
+		return accountNumber;
 	}
 
 	public void setAccountnumber(int accountnumber) {
-		this.accountnumber = accountnumber;
+		this.accountNumber = accountnumber;
 	}
 
 	public BigDecimal getAccountBalance() {
