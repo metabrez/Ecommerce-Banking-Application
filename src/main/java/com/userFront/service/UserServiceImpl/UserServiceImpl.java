@@ -1,17 +1,38 @@
 package com.userFront.service.UserServiceImpl;
 
+import java.util.Set;
+
+import javax.transaction.Transactional;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.userFront.dao.RoleDao;
 import com.userFront.dao.UserDao;
 import com.userFront.domain.User;
+import com.userFront.domain.security.UserRole;
+import com.userFront.service.AccountService;
 import com.userFront.service.UserService;
 
 @Service
+@Transactional
 public class UserServiceImpl implements UserService {
+	private static final Logger LOG=LoggerFactory.getLogger(UserService.class);
 
 	@Autowired
 	private UserDao userDao;
+	@Autowired
+    private RoleDao roleDao;
+
+    @Autowired
+    private BCryptPasswordEncoder passwordEncoder;
+    
+    @Autowired
+    private AccountService accountService;
+	
 
 	public void save(User user) {
 
@@ -27,10 +48,39 @@ public class UserServiceImpl implements UserService {
 		return userDao.findByEmail(email);
 
 	}
+	
+	public User createUser(User user,Set<UserRole> userRoles) {
+		
+		User localUser=userDao.findByUsername(user.getUsername());
+		if(localUser!=null) {
+			
+			LOG.info("User with username{} already exists.Nothing will be done",user.getUsername());
+			
+			
+		}else {
+			
+			String encryptedPassword=passwordEncoder.encode(user.getPassword());
+			user.setPassword(encryptedPassword);
+			for(UserRole ur:userRoles) {
+				
+				roleDao.save(ur.getRole());
+			}
+			
+			user.getUserRole().addAll(userRoles);
+
+			user.setPrimaryAccount(accountService.createPrimaryAccount());
+			  user.setSavingsAccount(accountService.createSavingsAccount());
+			  localUser=userDao.save(user);
+			
+			
+		}
+		
+		return localUser;
+	}
 
 	public boolean checkUserExists(String username, String email) {
 
-		if ((checkUsernameExists(username)) || (checkUserEmailExists(email))) {
+		if (checkUsernameExists(username) || checkUserEmailExists(email)) {
 
 			return true;
 		} else {
