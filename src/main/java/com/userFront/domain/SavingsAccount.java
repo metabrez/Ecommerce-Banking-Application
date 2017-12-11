@@ -37,8 +37,8 @@ public class SavingsAccount {
 		return accountNumber;
 	}
 
-	public void setAccountnumber(int accountnumber) {
-		this.accountNumber = accountnumber;
+	public void setAccountnumber(int accountNumber) {
+		this.accountNumber = accountNumber;
 	}
 
 	public BigDecimal getAccountBalance() {

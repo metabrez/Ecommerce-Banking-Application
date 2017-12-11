@@ -45,6 +45,8 @@ public class User implements UserDetails {
 
 	@OneToOne
 	private SavingsAccount savingsAccount;
+	
+
 
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	@JsonIgnore

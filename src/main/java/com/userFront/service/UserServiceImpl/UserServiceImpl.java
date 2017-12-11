@@ -20,19 +20,18 @@ import com.userFront.service.UserService;
 @Service
 @Transactional
 public class UserServiceImpl implements UserService {
-	private static final Logger LOG=LoggerFactory.getLogger(UserService.class);
+	private static final Logger LOG = LoggerFactory.getLogger(UserService.class);
 
 	@Autowired
 	private UserDao userDao;
 	@Autowired
-    private RoleDao roleDao;
+	private RoleDao roleDao;
 
-    @Autowired
-    private BCryptPasswordEncoder passwordEncoder;
-    
-    @Autowired
-    private AccountService accountService;
-	
+	@Autowired
+	private BCryptPasswordEncoder passwordEncoder;
+
+	@Autowired
+	private AccountService accountService;
 
 	public void save(User user) {
 
@@ -40,41 +39,39 @@ public class UserServiceImpl implements UserService {
 	}
 
 	public User findByUsername(String username) {
-        return userDao.findByUsername(username);
-    }
+		return userDao.findByUsername(username);
+	}
 
 	public User findByEmail(String email) {
 
 		return userDao.findByEmail(email);
 
 	}
-	
-	public User createUser(User user,Set<UserRole> userRoles) {
-		
-		User localUser=userDao.findByUsername(user.getUsername());
-		if(localUser!=null) {
-			
-			LOG.info("User with username{} already exists.Nothing will be done",user.getUsername());
-			
-			
-		}else {
-			
-			String encryptedPassword=passwordEncoder.encode(user.getPassword());
+
+	public User createUser(User user, Set<UserRole> userRoles) {
+
+		User localUser = userDao.findByUsername(user.getUsername());
+		if (localUser != null) {
+
+			LOG.info("User with username{} already exists.Nothing will be done", user.getUsername());
+
+		} else {
+
+			String encryptedPassword = passwordEncoder.encode(user.getPassword());
 			user.setPassword(encryptedPassword);
-			for(UserRole ur:userRoles) {
-				
+			for (UserRole ur : userRoles) {
+
 				roleDao.save(ur.getRole());
 			}
-			
+
 			user.getUserRole().addAll(userRoles);
 
 			user.setPrimaryAccount(accountService.createPrimaryAccount());
-			  user.setSavingsAccount(accountService.createSavingsAccount());
-			  localUser=userDao.save(user);
-			
-			
+			user.setSavingsAccount(accountService.createSavingsAccount());
+			localUser = userDao.save(user);
+
 		}
-		
+
 		return localUser;
 	}
 
@@ -102,21 +99,21 @@ public class UserServiceImpl implements UserService {
 
 		}
 	}
-	
+
 	public boolean checkUserEmailExists(String email) {
-		
-		if(null!=findByEmail(email)) {
-			
+
+		if (null != findByEmail(email)) {
+
 			return true;
-		}
-		else {
-			
+		} else {
+
 			return false;
 		}
 	}
 
+	@Override
+	public User saveUser(User user) {
+		 return userDao.save(user);
+	}
 
-	
-
-	
 }
